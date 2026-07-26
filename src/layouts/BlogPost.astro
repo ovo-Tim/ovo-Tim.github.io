@@ -1,0 +1,10 @@
+---
+import MinimalBlogPost from "virtual:tylant/layouts/minimal/BlogPost";
+import type { Props as MinimalBlogPostProps } from "virtual:tylant/layouts/minimal/BlogPost";
+
+type Props = MinimalBlogPostProps;
+---
+
+<MinimalBlogPost {...Astro.props}>
+  <slot />
+</MinimalBlogPost>

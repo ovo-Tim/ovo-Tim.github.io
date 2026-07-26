@@ -1,0 +1,20 @@
+/* Index page post list specific tweaks */
+
+.posts li > a.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5em 1em;
+}
+
+.posts li > a.heading h2 {
+  flex: 1 1 auto;
+}
+
+.posts li > a.heading .date {
+  flex: 0 0 auto;
+}
+
+.block-list > li.md-card {
+  padding: 1.5em;
+}

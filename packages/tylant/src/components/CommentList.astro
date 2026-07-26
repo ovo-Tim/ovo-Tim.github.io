@@ -1,0 +1,417 @@
+---
+import type { BlogComment, CommentHost } from "../..";
+import { publicCommentUserName } from "./utils";
+
+interface Props extends CommentHost {
+  articleId: string;
+  kCommentInfo: Map<string, BlogComment[]>;
+}
+
+const { articleId, kCommentInfo, renderComment } = Astro.props;
+const commentsRaw = kCommentInfo.get(articleId) || [];
+const comments = commentsRaw.map((comment) => {
+  const htmlEscape = (str: string) => {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  };
+  const firstLineOfComment = (id: string) => {
+    const comment = commentsRaw.find((c) => c.id === id);
+    if (!comment) return "";
+    const content = comment.content
+      .replace(/\[user:([^\]]*)\]/g, "")
+      .replace(/\[comment:(\d+)\]/g, "");
+
+    const firstLine = content.trim().split("\n")[0];
+    if (firstLine && firstLine.startsWith("```")) {
+      return "";
+    }
+
+    return "\n\n" + firstLine;
+  };
+
+  const makeMdQuote = (str: string) => {
+    // replace newlines with markdown blockquote
+    return str
+      .split("\n")
+      .map((line) => `> ${line}`)
+      .join("\n");
+  };
+
+  const content = comment.content
+    .replace(
+      /\[user:([^\]]*)\]/g,
+      (_, id) => `<userref>${htmlEscape(publicCommentUserName(id))}</userref>`
+    )
+    .replace(
+      /\[comment:(\d+)\]/g,
+      (_, id) =>
+        makeMdQuote(
+          `<commentref>${htmlEscape(id)}</commentref>${htmlEscape(firstLineOfComment(id))}`
+        ) + "\n"
+    );
+
+  return {
+    ...comment,
+    content,
+    displayName: publicCommentUserName(comment.email),
+  };
+});
+const userOccurrences = new Set<string>();
+const addUserAnchor = (user: string) => {
+  if (userOccurrences.has(user)) {
+    return undefined;
+  }
+  userOccurrences.add(user);
+  return `user-${encodeURIComponent(user)}`;
+};
+---
+
+<style>
+  #comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+  #comment-form textarea {
+  }
+
+  /* https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
+  .grow-wrap {
+    /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
+    display: grid;
+    height: fit-content;
+  }
+  .grow-wrap::after {
+    /* Note the weird space! Needed to preventy jumpy behavior */
+    content: attr(data-replicated-value) " ";
+
+    /* This is how textarea text behaves */
+    white-space: pre-wrap;
+
+    /* Hidden from view, clicks, and screen readers */
+    visibility: hidden;
+  }
+  .grow-wrap > textarea {
+    /* You could leave this, but after a user resizes, then it ruins the auto sizing */
+    resize: none;
+
+    /* Firefox shows scrollbar on growth, you can hide like this. */
+    overflow: hidden;
+    box-sizing: border-box;
+    /* width: 100%; */
+    /* height: 1em; */
+  }
+  .grow-wrap > textarea,
+  .grow-wrap::after {
+    /* Identical styling required!! */
+    border: 1px solid var(--main-color);
+    border-radius: 4px;
+    background-color: var(--main-bg-color);
+    color: var(--main-color);
+    padding: 0.3em;
+    font: inherit;
+
+    /* Place on top of each other */
+    grid-area: 1 / 1 / 2 / 2;
+  }
+  .submit-button {
+    background-color: var(--main-bg-color);
+    border: 1px solid var(--main-color);
+    border-radius: 4px;
+    color: var(--main-color);
+    padding: 0.3em 1em;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.8rem;
+    display: inline-block;
+    float: right;
+  }
+  .submit-button:hover {
+    background-color: var(--main-color);
+    color: var(--main-bg-color);
+  }
+  .submit-button:active {
+    color: rgba(var(--main-bg-color), 80%);
+    background-color: rgba(var(--main-color), 80%);
+  }
+  .comment-input {
+    background-color: var(--main-bg-color);
+    border: 1px solid var(--main-color);
+    border-radius: 4px;
+    color: var(--main-color);
+    padding: 0.3em 0.3em;
+    text-decoration: none;
+    font-size: 0.8rem;
+    display: inline-block;
+    min-width: 0;
+  }
+
+  .comment-list {
+    margin-top: 2em;
+  }
+  .comment-item {
+    background-color: var(--main-bg-color);
+  }
+
+  .comment-head {
+    font-size: 0.8em;
+  }
+
+  .comment-text {
+    margin: 0.5em 0 0.5em 1em;
+  }
+
+  .comment-fields {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) minmax(12rem, 1.5fr) auto;
+    gap: 0.5em;
+    align-items: center;
+  }
+  @media (max-width: 550px) {
+    .comment-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .comment-alt {
+    font-size: 1em;
+    display: inline-block;
+    text-decoration: none;
+  }
+  .comment-alt:hover {
+    text-decoration: underline;
+  }
+
+  .comment-unauthorized {
+    font-size: 1em;
+    margin-left: 0.5em;
+    color: #c21f30;
+  }
+
+  .comment-head:focus,
+  .comment-alt:focus {
+    color: #f9a633;
+  }
+</style>
+<section class="comment-region" aria-label="Comments">
+  <h3>Comments</h3>
+  <form
+    id="comment-form"
+    data-article-id={articleId}
+    aria-label="Submit a Comment"
+    novalidate
+  >
+    <div class="grow-wrap">
+      <textarea
+        name="comment"
+        placeholder="Your comment in Markdown format, which will be visible after review. Your email will not be shown on the site."
+        oninput="this.parentNode.dataset.replicatedValue = this.value"
+        required></textarea>
+    </div>
+    <!-- <button type="submit">Submit</button> -->
+    <div class="comment-fields">
+      <input
+        class="comment-input"
+        type="text"
+        name="user"
+        placeholder="Name"
+        autocomplete="nickname"
+        maxlength="64"
+        required
+      />
+      <input
+        class="comment-input"
+        type="email"
+        name="email"
+        placeholder="mail@example.com"
+        autocomplete="email"
+        maxlength="254"
+        required
+      />
+      <button type="submit" class="submit-button" style="flex: 0 0 auto;"
+        >Submit</button
+      >
+    </div>
+
+    <script>
+      const form = document.getElementById("comment-form")!;
+      const articleId = form.dataset.articleId!;
+      const user = form.querySelector<HTMLInputElement>("input[name='user']")!;
+      const email = form.querySelector<HTMLInputElement>(
+        "input[name='email']"
+      )!;
+      const commentRegion = form.closest<HTMLElement>(".comment-region")!;
+      const textarea = form.querySelector<HTMLTextAreaElement>(
+        "textarea[name='comment']"
+      )!;
+
+      const normalizeUserName = (name: string) =>
+        name.trim().replace(/[ \t]+/g, " ");
+      const unsafeUserNamePattern = /[\p{C}<>\[\]]/u;
+      const validateUserName = (name: string) => {
+        if (!name) {
+          return "Please enter a display name";
+        }
+        if (name.length > 64) {
+          return "Display name is too long";
+        }
+        if (unsafeUserNamePattern.test(name)) {
+          return "Display name cannot contain control characters, angle brackets, or square brackets";
+        }
+        return "";
+      };
+      const validateEmail = (address: string) => {
+        if (!address) {
+          return "Please enter an email address";
+        }
+        if (address.length > 254 || !email.validity.valid) {
+          return "Please enter a valid email address";
+        }
+        return "";
+      };
+      const quoteDisplayName = (name: string) => {
+        return `"${name.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+      };
+      const parseStoredMailFrom = (value: string) => {
+        const match = value.match(
+          /^\s*(?:"((?:\\.|[^"])*)"|([^<"]*?))\s*<([^<>\s]+@[^<>\s]+)>\s*$/u
+        );
+        if (!match) {
+          return { user: "", email: value.trim() };
+        }
+        return {
+          user: (match[1] || match[2] || "")
+            .replace(/\\(["\\])/g, "$1")
+            .trim(),
+          email: match[3].trim(),
+        };
+      };
+
+      const storedMailFrom = parseStoredMailFrom(
+        localStorage.getItem("commentMailFrom") || ""
+      );
+      user.value =
+        localStorage.getItem("commentUserName") || storedMailFrom.user;
+      email.value = storedMailFrom.email;
+
+      user.addEventListener("input", () => user.setCustomValidity(""));
+      email.addEventListener("input", () => email.setCustomValidity(""));
+      textarea.addEventListener("input", () => textarea.setCustomValidity(""));
+
+      const appendToComment = (value: string) => {
+        textarea.value += value;
+        textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        textarea.focus();
+      };
+
+      commentRegion
+        .querySelectorAll<HTMLAnchorElement>(".comment-alt[data-user]")
+        .forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+
+            const user = link.dataset.user || "";
+            const commentId = link.dataset.commentId;
+            if (!user && !commentId) {
+              return;
+            }
+
+            const userText = user ? "[user:" + user + "] " : "";
+            const value = commentId
+              ? "[comment:" + commentId + "]\n" + userText
+              : userText;
+
+            appendToComment(value);
+          });
+        });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const content = textarea.value.trim();
+        const displayName = normalizeUserName(user.value);
+        const mailAddress = email.value.trim();
+
+        user.value = displayName;
+        email.value = mailAddress;
+
+        textarea.setCustomValidity("");
+        user.setCustomValidity("");
+        email.setCustomValidity("");
+        textarea.setCustomValidity(content ? "" : "Please enter a comment");
+        user.setCustomValidity(validateUserName(displayName));
+        email.setCustomValidity(validateEmail(mailAddress));
+        if (!form.reportValidity()) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("articleId", articleId);
+        formData.append("content", content);
+        formData.append(
+          "email",
+          `${quoteDisplayName(displayName)} <${mailAddress}>`
+        );
+
+        localStorage.setItem("commentUserName", displayName);
+        localStorage.setItem("commentMailFrom", mailAddress);
+
+        // todo: use fetch instead of postServer
+        (window as any)
+          .postServer("/article/comment", { body: formData })
+          .then((response: Response) => {
+            if (response) {
+              alert(
+                "Comment sent successfully. It will be visible after review."
+              );
+              textarea.value = "";
+              textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+          });
+      });
+    </script>
+  </form>
+  <ol class="block-list comment-list">
+    {
+      comments.map((comment) => (
+        <li class="comment-item">
+          <div class="comment-head">
+            <strong>{comment.displayName}</strong>
+            <a
+              class="comment-alt"
+              href="#comment-form"
+              id={addUserAnchor(comment.displayName)}
+              data-user={comment.displayName}
+            >
+              [@]
+            </a>
+            <em>
+              at
+              <time>{new Date(comment.createdAt).toLocaleString()}</time>
+            </em>
+            <a
+              class="comment-alt"
+              href="#comment-form"
+              id={`comment-${comment.id}`}
+              data-user={comment.displayName}
+              data-comment-id={comment.id}
+            >
+              [reply]
+            </a>
+            {!comment.authorized && (
+              <span
+                class="comment-unauthorized"
+                title="Administrator has not yet verified this comment"
+              >
+                [unauthorized]
+              </span>
+            )}
+          </div>
+          <div class="comment-text" set:html={renderComment(comment.content)} />
+        </li>
+      ))
+    }
+  </ol>
+</section>
