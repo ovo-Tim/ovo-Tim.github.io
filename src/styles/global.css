@@ -21,6 +21,13 @@
   --md-sys-color-background: #fffbfe;
   --md-sys-color-on-background: #1c1b1f;
   --md-sys-color-surface: #fffbfe;
+  --md-sys-color-surface-dim: #ded8e1;
+  --md-sys-color-surface-bright: #fdf7fd;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f7f2fa;
+  --md-sys-color-surface-container: #f3edf7;
+  --md-sys-color-surface-container-high: #ece6f0;
+  --md-sys-color-surface-container-highest: #e6e0e9;
   --md-sys-color-on-surface: #1c1b1f;
   --md-sys-color-surface-variant: #e7e0ec;
   --md-sys-color-on-surface-variant: #49454f;
@@ -45,7 +52,7 @@
 
   --main-color: var(--md-sys-color-on-surface);
   --main-hover-color: var(--md-sys-color-primary);
-  --main-bg-color: var(--md-sys-color-background);
+  --main-bg-color: var(--md-sys-color-surface-container-lowest);
   --nav-bg-color: var(--md-sys-color-surface);
   --gray-color: var(--md-sys-color-on-surface-variant);
   --accent: var(--md-sys-color-primary);
@@ -75,6 +82,13 @@
   --md-sys-color-background: #1c1b1f;
   --md-sys-color-on-background: #e6e1e5;
   --md-sys-color-surface: #1c1b1f;
+  --md-sys-color-surface-dim: #141218;
+  --md-sys-color-surface-bright: #3b383e;
+  --md-sys-color-surface-container-lowest: #0f0d13;
+  --md-sys-color-surface-container-low: #1d1b20;
+  --md-sys-color-surface-container: #211f26;
+  --md-sys-color-surface-container-high: #2b2930;
+  --md-sys-color-surface-container-highest: #36343b;
   --md-sys-color-on-surface: #e6e1e5;
   --md-sys-color-surface-variant: #49454f;
   --md-sys-color-on-surface-variant: #cab6f0;
@@ -86,7 +100,7 @@
 
   --main-color: var(--md-sys-color-on-surface);
   --main-hover-color: var(--md-sys-color-primary);
-  --main-bg-color: var(--md-sys-color-background);
+  --main-bg-color: var(--md-sys-color-surface-container-lowest);
   --nav-bg-color: var(--md-sys-color-surface);
   --gray-color: var(--md-sys-color-on-surface-variant);
   --accent: var(--md-sys-color-primary);
@@ -241,19 +255,15 @@ hr {
   margin: 1.5em 0;
 }
 
-/* Material card */
-.md-card {
-  background-color: var(--md-sys-color-surface);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-large);
-  box-shadow: var(--md-sys-elevation-1);
-  padding: 1.5em;
+/* Material cards */
+md-elevated-card,
+md-outlined-card {
+  display: block;
   margin: 1em 0;
-  transition: box-shadow 0.2s ease;
 }
 
-.md-card:hover {
-  box-shadow: var(--md-sys-elevation-2);
+.card-content {
+  padding: 1.5em;
 }
 
 /* App bar */
@@ -330,69 +340,25 @@ header .social-links a:hover {
 }
 
 /* Material icon button */
-.md-icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
+md-icon-button {
   color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  padding: 0;
 }
 
-.md-icon-button:hover {
-  background-color: var(--md-sys-color-surface-variant);
-  color: var(--md-sys-color-on-surface);
-}
-
-.md-icon-button svg {
+md-icon-button svg {
   width: 1.25em;
   height: 1.25em;
 }
 
 /* Material search */
-.md-search {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75em;
-  margin: 1em auto;
-  padding: 1em;
+.search {
   max-width: min(60rem, calc(100% - 2em));
-  background-color: var(--md-sys-color-surface);
-  border-radius: var(--md-sys-shape-extra-large);
-  border: 1px solid var(--md-sys-color-outline);
-  color: var(--md-sys-color-on-surface);
+  margin: auto;
 }
 
-.md-search input,
-.md-search select {
-  background: var(--md-sys-color-surface-variant);
-  color: var(--md-sys-color-on-surface);
-  border: none;
-  border-radius: var(--md-sys-shape-small);
-  padding: 0.6em 1em;
-  font-size: 1em;
-  outline: none;
-}
-
-.md-search input:focus,
-.md-search select:focus {
-  outline: 2px solid var(--md-sys-color-primary);
-}
-
-.md-search input {
-  flex: 1 1 12rem;
-  min-width: 8rem;
-}
-
-.md-search select {
-  cursor: pointer;
+.search-card {
+  display: block;
+  width: 100%;
+  margin: 1em auto;
 }
 
 /* Chips / tags */
@@ -405,23 +371,7 @@ header .social-links a:hover {
   margin: 0.5em 0 0;
 }
 
-.tags li a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25em 0.8em;
-  border-radius: var(--md-sys-shape-small);
-  background-color: var(--md-sys-color-surface-variant);
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 0.85em;
-  font-weight: 500;
-  text-decoration: none;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  transition: background-color 0.2s;
-}
-
-.tags li a:hover {
-  background-color: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
+.tags a {
   text-decoration: none;
 }
 
@@ -499,20 +449,6 @@ footer .social-links a {
 footer .social-links a:hover {
   background-color: var(--md-sys-color-surface-variant);
   color: var(--md-sys-color-on-surface);
-}
-
-/* Giscus card */
-.giscus-card {
-  background-color: var(--md-sys-color-surface);
-  border-radius: var(--md-sys-shape-large);
-  box-shadow: var(--md-sys-elevation-1);
-  padding: 1em 1.5em 1.5em;
-  margin-top: 2em;
-}
-
-.giscus-card h2 {
-  margin-top: 0;
-  font-size: 1.25em;
 }
 
 /* Prose / article */

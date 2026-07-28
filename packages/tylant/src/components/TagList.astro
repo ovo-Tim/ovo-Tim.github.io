@@ -20,7 +20,9 @@ const postByTag = (tag: string) => {
   {
     tags.map((tag) => (
       <li>
-        <a href={postByTag(tag)}>#{tag}</a>
+        <a href={postByTag(tag)}>
+          <md-assist-chip label={tag} />
+        </a>
       </li>
     ))
   }

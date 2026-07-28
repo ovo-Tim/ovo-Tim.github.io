@@ -1,6 +1,5 @@
 ---
 const translateEn = {
-  searchLabel: "Search:&nbsp;",
   search: "Search",
   keywords: "Keywords...",
   sortBy: "Sort by",
@@ -22,7 +21,6 @@ const translateEn = {
 
 const translates: Record<string, Record<keyof typeof translateEn, string>> = {
   zh: {
-    searchLabel: "搜索：",
     search: "搜索",
     keywords: "关键词...",
     sortBy: "排序方式",
@@ -55,38 +53,69 @@ const t = (key: keyof typeof translateEn) => {
     display: none;
   }
   .search.enabled {
+    display: block;
+  }
+  .search-panel {
     display: flex;
     flex-wrap: wrap;
+    gap: 1em;
+    align-items: center;
+    padding: 1em;
+  }
+  .search-panel md-outlined-text-field {
+    flex: 1 1 12rem;
+    min-width: 12rem;
+  }
+  .search-panel md-outlined-select {
+    flex: 0 0 auto;
+    min-width: 8rem;
   }
 </style>
 
 <div aria-label={t("search")} role="search">
-  <div class="search enabled md-search">
-    <label for="search-text" class="sr-only">{t("searchByKeywords")}</label>
-    <input
-      id="search-text"
-      type="text"
-      placeholder={t("keywords")}
-      title={t("searchByKeywords")}
-      role="searchbox"
-    />
-    <label for="search-sort" class="sr-only">{t("sortBy")}</label>
-    <select id="search-sort" title={t("sortBy")}>
-      <option value="date" title={t("sortByDate")}>{t("date")}</option>
-      <option value="date-asc" title={t("sortByDateAsc")}>{t("dateAsc")}</option>
-      <option value="modified-date" title={t("sortByModifiedDate")}>{t("modifiedDate")}</option>
-      <option value="modified-date-asc" title={t("sortByModifiedDateAsc")}>{t("modifiedDateAsc")}</option>
-      <option value="title" title={t("sortByTitle")}>{t("title")}</option>
-      <option value="tag" title={t("sortByTags")}>{t("tags")}</option>
-    </select>
+  <div class="search enabled">
+    <md-outlined-card class="search-card">
+      <div class="search-panel">
+        <md-outlined-text-field
+          id="search-text"
+          type="search"
+          label={t("searchByKeywords")}
+          placeholder={t("keywords")}
+          role="searchbox"
+        />
+        <md-outlined-select
+          id="search-sort"
+          label={t("sortBy")}
+          aria-label={t("sortBy")}
+        >
+          <md-select-option value="date">
+            <div slot="headline">{t("date")}</div>
+          </md-select-option>
+          <md-select-option value="date-asc">
+            <div slot="headline">{t("dateAsc")}</div>
+          </md-select-option>
+          <md-select-option value="modified-date">
+            <div slot="headline">{t("modifiedDate")}</div>
+          </md-select-option>
+          <md-select-option value="modified-date-asc">
+            <div slot="headline">{t("modifiedDateAsc")}</div>
+          </md-select-option>
+          <md-select-option value="title">
+            <div slot="headline">{t("title")}</div>
+          </md-select-option>
+          <md-select-option value="tag">
+            <div slot="headline">{t("tags")}</div>
+          </md-select-option>
+        </md-outlined-select>
+      </div>
+    </md-outlined-card>
   </div>
   <script>
     import type { CollectionEntry } from "astro:content";
     type BlogMeta = CollectionEntry<"blog">["data"];
 
-    const searchText = document.querySelector<HTMLInputElement>("#search-text");
-    const searchSort =
-      document.querySelector<HTMLSelectElement>("#search-sort");
+    const searchText = document.querySelector<HTMLElement>("#search-text");
+    const searchSort = document.querySelector<HTMLElement>("#search-sort");
 
     interface SearchItem {
       element: HTMLLIElement;
@@ -120,7 +149,6 @@ const t = (key: keyof typeof translateEn) => {
     function runSearch(posts: SearchItem[], search?: string, sort?: string) {
       if (!search) search = undefined;
       if (!sort) sort = "date";
-      // update the params
       const params = new URLSearchParams(window.location.search);
       if (search) {
         params.set("search", search);
@@ -203,22 +231,29 @@ const t = (key: keyof typeof translateEn) => {
     }
 
     searchText?.addEventListener("input", () => {
-      runSearch(searchItems(), searchText.value, searchSort?.value);
+      runSearch(
+        searchItems(),
+        (searchText as any).value,
+        (searchSort as any).value
+      );
     });
 
     searchSort?.addEventListener("change", () => {
-      runSearch(searchItems(), searchText?.value, searchSort.value);
+      runSearch(
+        searchItems(),
+        (searchText as any).value,
+        (searchSort as any).value
+      );
     });
 
-    // get params
     const params = new URLSearchParams(window.location.search);
     const search = params.get("search") || undefined;
     const sort = params.get("sort") || undefined;
     if (searchText && search) {
-      searchText.value = search;
+      (searchText as any).value = search;
     }
     if (searchSort && sort) {
-      searchSort.value = sort;
+      (searchSort as any).value = sort;
     }
     runSearch(searchItems(), search, sort);
   </script>

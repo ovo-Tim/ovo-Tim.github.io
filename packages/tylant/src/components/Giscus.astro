@@ -6,33 +6,37 @@ const enabled = kGiscus.repo && kGiscus.repoId && kGiscus.categoryId;
 
 {
   enabled ? (
-    <div class="giscus-card">
-      <h2>Comments</h2>
-      <script
-        src="https://giscus.app/client.js"
-        data-repo={kGiscus.repo}
-        data-repo-id={kGiscus.repoId}
-        data-category={kGiscus.category}
-        data-category-id={kGiscus.categoryId}
-        data-mapping={kGiscus.mapping}
-        data-strict="0"
-        data-reactions-enabled={kGiscus.reactionsEnabled}
-        data-emit-metadata={kGiscus.emitMetadata}
-        data-input-position={kGiscus.inputPosition}
-        data-theme={kGiscus.theme}
-        data-lang={kGiscus.lang}
-        data-loading={kGiscus.loading}
-        crossorigin="anonymous"
-        async
-      />
-    </div>
+    <md-elevated-card>
+      <div class="card-content">
+        <h2>Comments</h2>
+        <script
+          src="https://giscus.app/client.js"
+          data-repo={kGiscus.repo}
+          data-repo-id={kGiscus.repoId}
+          data-category={kGiscus.category}
+          data-category-id={kGiscus.categoryId}
+          data-mapping={kGiscus.mapping}
+          data-strict="0"
+          data-reactions-enabled={kGiscus.reactionsEnabled}
+          data-emit-metadata={kGiscus.emitMetadata}
+          data-input-position={kGiscus.inputPosition}
+          data-theme={kGiscus.theme}
+          data-lang={kGiscus.lang}
+          data-loading={kGiscus.loading}
+          crossorigin="anonymous"
+          async
+        />
+      </div>
+    </md-elevated-card>
   ) : (
-    <div class="giscus-card">
-      <p>
-        Giscus is not configured yet. Set <code>GISCUS_REPO</code>,{" "}
-        <code>GISCUS_REPO_ID</code>, and <code>GISCUS_CATEGORY_ID</code> in{" "}
-        <code>.env</code> to enable comments.
-      </p>
-    </div>
+    <md-elevated-card>
+      <div class="card-content">
+        <p>
+          Giscus is not configured yet. Set <code>GISCUS_REPO</code>,{" "}
+          <code>GISCUS_REPO_ID</code>, and <code>GISCUS_CATEGORY_ID</code> in{" "}
+          <code>.env</code> to enable comments.
+        </p>
+      </div>
+    </md-elevated-card>
   )
 }

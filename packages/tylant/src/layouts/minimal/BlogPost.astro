@@ -99,28 +99,30 @@ const {
   <body>
     <Header articleId={typeof id === "string" ? id : undefined} />
     <main>
-      <article class="md-card">
-        <div class="prose">
-          <section class="title" aria-label="Title">
-            <div class="annotation">
-              <div class="date">
-                <FormattedDate date={date} />
-                {
-                  updatedDate && (
-                    <span class="last-updated-on">
-                      , Last updated on{" "}
-                      <FormattedDate date={updatedDate} />
-                    </span>
-                  )
-                }
+      <md-elevated-card>
+        <article class="card-content">
+          <div class="prose">
+            <section class="title" aria-label="Title">
+              <div class="annotation">
+                <div class="date">
+                  <FormattedDate date={date} />
+                  {
+                    updatedDate && (
+                      <span class="last-updated-on">
+                        , Last updated on{" "}
+                        <FormattedDate date={updatedDate} />
+                      </span>
+                    )
+                  }
+                </div>
               </div>
-            </div>
-            <h1>{title}</h1>
-          </section>
-          <slot />
-        </div>
-      </article>
-      {tags && tags.length > 0 && <TagList tags={tags} />}
+              <h1>{title}</h1>
+            </section>
+            <slot />
+          </div>
+          {tags && tags.length > 0 && <TagList tags={tags} />}
+        </article>
+      </md-elevated-card>
       {typeof id === "string" && id && <Giscus />}
     </main>
     <Footer />

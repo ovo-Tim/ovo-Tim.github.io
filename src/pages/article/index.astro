@@ -47,20 +47,23 @@ const posts = (await getCollection("blog")).sort(
           {
             posts.map((post) => (
               <li
-                class="md-card"
                 data-article-id={post.id}
                 data-article-meta={JSON.stringify(post.data)}
               >
-                <a class="heading" href={`${kUrlBase}/article/${post.id}/`}>
-                  <h2>
-                    <span class="title">{post.data.title}</span>
-                  </h2>
-                  <span class="date">
-                    <FormattedDate date={post.data.date} />
-                  </span>
-                </a>
-                {post.data.tags && <TagList tags={post.data.tags} />}
-                {post.data.description || ""}
+                <md-elevated-card>
+                  <div class="card-content">
+                    <a class="heading" href={`${kUrlBase}/article/${post.id}/`}>
+                      <h2>
+                        <span class="title">{post.data.title}</span>
+                      </h2>
+                      <span class="date">
+                        <FormattedDate date={post.data.date} />
+                      </span>
+                    </a>
+                    {post.data.tags && <TagList tags={post.data.tags} />}
+                    {post.data.description || ""}
+                  </div>
+                </md-elevated-card>
               </li>
             ))
           }
