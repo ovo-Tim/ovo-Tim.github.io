@@ -10,6 +10,10 @@ A static, Material Design blog powered by [Typst](https://typst.app/), [Astro](h
 - **Giscus comments** — discussions powered by GitHub Discussions, no backend required.
 - **Fully static** — builds to plain HTML/CSS/JS and deploys to GitHub Pages.
 
+## Branches
+
+- **`my-blogs`** — actual blog content and the deployed site. Push here to publish; the Pages workflow runs on this branch.
+- **`main`** — framework only. Auto-deploy is disabled on this branch (manual `workflow_dispatch` only).
 ## Project structure
 
 ```text
@@ -82,7 +86,8 @@ To get your Giscus IDs, visit <https://giscus.app/> and follow the setup guide.
 
 1. Push this repository to GitHub.
 2. Go to **Settings → Pages** and set the source to **GitHub Actions**.
-3. The included `.github/workflows/gh-pages.yml` will build and deploy on every push to `main`.
+3. Allow the `my-blogs` branch to deploy: **Settings → Environments → github-pages → Deployment branches**.
+4. The included `.github/workflows/gh-pages.yml` will build and deploy on every push to `my-blogs`.
 
 ## Credits
 
