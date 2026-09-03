@@ -38,14 +38,6 @@ const recent5Posts = posts.slice(0, 5);
       )
     }
 
-    <style>
-      @media (max-width: 600px) {
-        .posts .heading {
-          display: flex;
-          flex-direction: column;
-        }
-      }
-    </style>
   </head>
   <body>
     <Header />
@@ -62,18 +54,19 @@ const recent5Posts = posts.slice(0, 5);
           {
             recent5Posts.map((post) => (
               <li>
-                <md-elevated-card>
+                <md-elevated-card class="post-card">
                   <div class="card-content">
-                    <a class="heading" href={`${kUrlBase}/article/${post.id}/`}>
-                      <h2>
-                        <span class="title">{post.data.title}</span>
-                      </h2>
-                      <span class="date">
-                        <FormattedDate date={post.data.date} />
-                      </span>
-                    </a>
-                    {post.data.tags && <TagList tags={post.data.tags} />}
-                    {post.data.description || ""}
+                    <a class="post-card-link" href={`${kUrlBase}/article/${post.id}/`} aria-label={post.data.title}></a>
+                    <h2 class="post-title">{post.data.title}</h2>
+                    <span class="date">
+                      <FormattedDate date={post.data.date} />
+                    </span>
+                    {post.data.description && <p class="post-desc">{post.data.description}</p>}
+                    {post.data.tags && (
+                      <div class="post-tags">
+                        <TagList tags={post.data.tags} />
+                      </div>
+                    )}
                   </div>
                 </md-elevated-card>
               </li>

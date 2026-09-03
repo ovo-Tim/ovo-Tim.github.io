@@ -1,21 +1,53 @@
 /* Index page post list specific tweaks */
 
-.posts li > a.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5em 1em;
-}
-
-.posts li > a.heading h2 {
-  flex: 1 1 auto;
-}
-
-.posts li > a.heading .date {
-  flex: 0 0 auto;
-}
-
 .posts md-elevated-card,
 .posts md-outlined-card {
   margin-bottom: 1em;
+}
+
+/* full-card clickable overlay */
+.post-card {
+  position: relative;
+}
+
+.post-card .post-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.post-card .post-card-link:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -2px;
+}
+
+.post-card .post-tags,
+.post-card .post-tags * {
+  position: relative;
+  z-index: 2;
+}
+
+.post-title {
+  font-size: 1.25em;
+  margin: 0 0 0.25em;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.post-card .date {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.9em;
+  font-style: italic;
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.post-desc {
+  margin: 0.25em 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.post-card:hover .post-title {
+  color: var(--md-sys-color-primary);
 }
