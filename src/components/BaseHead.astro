@@ -14,7 +14,7 @@ interface Props {
   image?: string;
 }
 
-const { title, description, image = "/blog-heading.webp" } = Astro.props;
+const { title, description, image = "/blog-heading.png" } = Astro.props;
 ---
 
 <MinimalBaseHead title={title} description={description} image={image} />
