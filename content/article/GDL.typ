@@ -26,11 +26,12 @@ To further explain how it works and why it is useful, we will skip all the math 
   - #link("https://www.youtube.com/watch?v=KufsL2VgELo")[_What is Group Theory? — Group Theory Ep. 1_] by Nemean
 
   No need to remember all the details, feel it.
-  // TODO: understand how CNN works(what is feature map, what is kernel)
+
+  To learn what convolution is: #link("https://www.youtube.com/watch?v=KuXjwB4LzSA")[But what is a convolution?] by 3Blue1Brown.
 ]
 
 = Shift Equivariance
-Let's start with a 1D example with 4 pixels.
+Let's start with a 1D image with 4 pixels.
 $
   bold(x) = vec(x_0, x_1, x_2, x_3)
 $
@@ -55,8 +56,11 @@ $
     $
       S^2 vec(x_0, x_1, x_2, x_3) = vec(x_2, x_3, x_0, x_1)
     $
-  - Also an operation can be composed.
-  // TODO
+  - Shifts can also be composed with each other, and the result is still a shift. For example,
+    $
+      S^1(S^2 x) = S^3 x, quad S^1(S^3 x) = S^4 x = I x = x
+    $
+    where $I$ is the identity operation. This also means every shift has an inverse; for example, $S^3$ undoes $S$.
 ]
 
 Now suppose we have an image-processing layer $F$ that takes an image as input and outputs a feature map with the same size as the input.
@@ -65,10 +69,28 @@ $
 $
 Then the shift equivariance is simply $F(S(x)) = S(F(x))$, meaning *the shift in the input will result in the same shift in the output*.
 
-// TODO
-// #callout(title: "Extra example")[
+#callout(title: "Extra Example")[
+  A common example is image segmentation. Here, $F$ returns a label or score for every pixel. Suppose our input is
+  $
+    x = vec(0, 1, 1, 0)
+  $
+  and the segmentation layer predicts
+  $
+    F(x) = vec(0, 1, 0, 0),
+  $
+  where $1$ means foreground and $0$ means background.
 
-// ]
+  If we shift the input one pixel to the right,
+  $
+    S(x) = vec(0, 0, 1, 1).
+  $
+  Shift equivariance requires the prediction to move by exactly the same amount:
+  $
+    F(S(x)) = vec(0, 0, 1, 0)
+    = S(F(x)).
+  $
+  The output is not unchanged; it moves together with the input. That is why this property is called *equivariance* rather than *invariance*.
+]
 
 Sometimes we call properties like this *Inductive Bias*, which is a prior assumption built into a learning algorithm about what kinds of functions are likely to solve the task.
 For example, in the model's perspective, Shift invariance means that if the cat in the image moved a few pixels, the output feature map should move the same distance. By embedding those rules into loss function(e.g. by adding regularization) or architecture, we can make the model work more efficiently.
@@ -127,7 +149,6 @@ $ y_u = sum_(v=0)^(n-1) W_(u, v) x_v = sum_(v=0)^(n-1) theta_((u - v) mod n) x_v
 This is precisely the definition of discrete convolution. In other words, the mathematical framework naturally deduces the convolution formula from linearity and shift equivariance
 
 = Another Perspective: Impulse Function Representation
-// TODO: polish this after learning more
 In the example above, representing an image as a vector works perfectly well. However, this is not the most general way to represent a signal. For more complex domains, such as spheres or graphs, a vector representation can obscure the underlying structure of the domain. In GDL, a more general and natural approach is to represent a signal as a *function*, sometimes also called a *mapping*.
 
 The standard form of this kind of representation is:
