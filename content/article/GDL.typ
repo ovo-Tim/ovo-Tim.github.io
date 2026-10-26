@@ -14,9 +14,9 @@
 Coauthored with #link("https://github.com/Zikai311")[Zikai Wang].
 
 Most of the time we consider deep learning as an engineering problem -- we are told what works, what doesn't, and what the standard solution is to a specific problem.
-But very few people ask why. Geometric Deep Learning provides us with mathematical tools for understanding why architectures such as CNNs, LSTMs, and Transformers can exploit structure that a plain MLP does not build in explicitly.
+Yet it is often less clear why these architectures work. Geometric Deep Learning provides us with mathematical tools for understanding why architectures such as CNNs, LSTMs, and Transformers can exploit structure that a plain MLP does not explicitly encode.
 
-To explain how it works and why it is useful, we will skip most of the math in the front part of #link("https://geometricdeeplearning.com/book/")[Original _Geometric Deep Learning_ book] and give you a quick walk-through to derive convolution(core of CNN) from shift-equivariance.
+To quickly give you a sense of how it works and why it is useful, we will skip most of the math in the front part of #link("https://geometricdeeplearning.com/book/")[Original _Geometric Deep Learning_ book] and give you a walk-through derivation of convolution from linearity and shift equivariance.
 
 #tip[
   = Before you start
@@ -104,8 +104,12 @@ In other words, if the input moves, the feature map moves with it by the same am
   The output is not unchanged; it moves together with the input. That is why this property is called *equivariance* rather than *invariance*.
 ]
 
-We call properties like this *Inductive Bias*, which is a prior assumption built into a learning algorithm about what kinds of functions are likely to solve the task.
-For example, in the model's perspective, Shift invariance means that if the cat in the image moved a few pixels, the output feature map should move the same distance. By embedding those rules into loss function(e.g. by adding regularization) or architecture, we can make the model work more efficiently.
+We call this kind of structural constraint *Inductive Bias*: an assumption built into a learning algorithm about which functions are likely to be useful for a given task.
+
+For example, shift equivariance means that if a cat moves a few pixels in an image, the intermediate feature map should move by the same amount. Shift invariance, on the other hand, means that the final output, such as a classification score, remains unchanged under the same shift.
+
+These properties can be built into the network architecture or encouraged through regularization. Architectural constraints can enforce exact equivariance under appropriate assumptions, whereas regularization alone does not generally guarantee it.
+
 We will see exactly how that works in the next chapter.
 
 = Deriving Convolution with Matrix Representation
@@ -126,16 +130,16 @@ Suppose our image-processing layer $F(x) = W x$, where $W in bb(R)^(n times n)$ 
 Using elementary linear algebra, let us examine the restrictions that this commutativity constraint $W S_1 = S_1 W$ imposes on the entries $W_(u, v)$ of matrix $W$. Right-multiplication by the shift operator $(W S_1)_(u, v)$ shifts column $v + 1$ of $W$ to column $v$, which yields
 $ (W S_1)_(u, v) = W_(u, (v + 1) mod n) $.
 
-Whereas the left-multiplication by the shift operator, $(S_1 W)_(u, v)$shifts row $u - 1$ of $W$ to row $u$, which yields
+Whereas the left-multiplication by the shift operator, $(S_1 W)_(u, v)$ shifts row $u - 1$ of $W$ to row $u$, which yields
 $
   (S_1 W)_(u, v) = W_((u - 1) mod n, v)
 $
 From $W S_1 = S_1 W$, we obtain the fundamental constraint equation:
-$ W_(u, v+1 mod n) = W_((u - 1) mod n, v) quad forall u, v $
+$ W_(u, (v+1) mod n) = W_((u - 1) mod n, v) quad forall u, v $
 letting $u'=u-1$,
 $ W_((u'+1) mod n, (v + 1) mod n) = W_(u', v) quad forall u', v $
 
-This relations reveals that a shift equivariant operation is represented by a matrix where elements along each diagonal are constant, and any diagonal that runs off one edge wraps around and continues with the same value on the opposite edge. This is also known as a circular matrix.
+This relations reveals that a shift equivariant operation is represented by a matrix where elements along each diagonal are constant, and any diagonal that runs off one edge wraps around and continues with the same value on the opposite edge. This is also known as a circulant matrix.
 If we define an $n$-dimensional parameter vector $theta_k := W_(k, 0)$, where $k = (u - v) mod n$, then
 
 $ W_(u, v) = theta_((u - v) mod n) $
@@ -190,12 +194,10 @@ $
   x((0, 0)) = a, x((0, 1)) = b, x((1, 0)) = c, x((1, 1)) = d
 $
 
-The values are the same; the advantage is that the geometry lives explicitly in the domain $Omega$ instead of being hidden by an arbitrary flattening order.
+The values are the same; the advantage is that the geometry lives explicitly in the domain $Omega$ instead of being hidden by an arbitrary flattening order. However, to keep things simple, we are still going to use a 1D example.
 
 == Representing a 1D Signal Using Impulses
-Again, to keep things simple, we are going to represent a 1D image as the linear combination of impulse functions. But what's even an impulse function?
-
-We all know that every vector can be reconstructed from its coordinates and the standard basis vectors:
+Now, we are going to represent a 1D image as the linear combination of impulse functions. But what's even an impulse function? We all know that every vector can be reconstructed from its coordinates and the standard basis vectors:
 $
   vec(a, b, c)=a vec(1, 0, 0) + b vec(0, 1, 0) + c vec(0, 0, 1)
 $
@@ -204,9 +206,9 @@ When we are presenting an image as a function, we also want an analogous set of 
 This is exactly what the *impulse function* does:
 $
   delta_0(u) = cases(
-    1\, u = 0,
-    0\, u!= 0
-  ) space, u in Z
+    1 & "if" u = 0,
+    0 & "if" u != 0,
+  ) space, u in bb(Z)
 $
 By itself, it means one bright pixel at the origin...
 ```
@@ -216,13 +218,13 @@ By itself, it means one bright pixel at the origin...
 ```
 ..., which is not very useful. But we can combine it with the shift operation we defined earlier to represent any image. To make things easier to read, we define $delta_v = S^v (delta_0)$. Then any signal $x$ can be assembled out of these one-pixel signals:
 $
-  x = sum_(v in Z) a(v) delta_v
+  x = sum_(v in bb(Z)) a(v) delta_v
 $
 Pointwise, this says
 $
-  x(u) = sum_(v in Omega) a(v) delta_v(u).
+  x(u) = sum_(v in bb(Z)) a(v) delta_v (u).
 $
-For simplicity's sake $x$ is also written as $x = sum_(v in Z) a(v) delta_v$. Keep in mind that $delta_v$ is a function.
+For simplicity's sake $x$ is also written as $x = sum_(v in bb(Z)) a(v) delta_v$. Keep in mind that $delta_v$ is a function.
 
 For example, an image like this:
 ```
@@ -236,32 +238,34 @@ Let's also start from a linear layer $F$, which takes a signal $x: Omega -> bb(R
 $
   F: X(Omega) -> X(Omega)
 $
-(So when you see $[F(x)](u)$ below, it means the u-th component of the output signal $y$.) This is the same kind of $F$ as in the matrix section; once we choose the impulse basis, its coordinate matrix is the $W$ used above.
+(So when you see $[F(x)](u)$ below, it means the u-th component of the output signal $y$.)
+This is the same kind of $F$ as in the matrix section; once we choose the impulse basis, its coordinate matrix is the $W$ used above.
 
 Plug in the representation of $x$ above to our layer $F$, we have:
 $
-  [F(x)](u) = F(sum_(v in Omega) a(v) delta_v (u))
+  [F(x)](u) = F(sum_(v in bb(Z)) a(v) delta_v) (u)
 $
+
 By linearity, we can move it inside the summation:
 $
   [F(x)](u)
-  = sum_(v in Omega) a(v) [F(delta_v)](u)
-  = sum_(v in Omega) a(v) F(S^v delta_0)(u)
+  = sum_(v in bb(Z)) a(v) [F(delta_v)](u)
+  = sum_(v in bb(Z)) a(v) F(S^v delta_0)(u)
 $
 Because $F$ is shift equivariant, we can replace $F(S^v delta_0)$ with $S^v F(delta_0)$.
 $
-  [F(x)](u) = sum_(v in Omega) a(v) [S^v F(delta_0)](u)
+  [F(x)](u) = sum_(v in bb(Z)) a(v) [S^v F(delta_0)](u)
 $
 
-The key insight shift equivariant told us here, is that now the output of $F$ is independent to exact signal $S_v$.
-Instead, $F(delta_0)$ is a constant "vector" to all the input signals. When we process different positions, we simply shift this "constant vector". We call it a *kernel* in convolution term. Let's denote $theta = F(delta_0)$ ($theta: Z -> bb(R)$), then
+The key insight is that shift equivariance allows us to determine the response to an impulse at any position from the response to a single impulse at the origin.
+$F(delta_0)$ is a constant "vector" to all the input signals. When we process different positions, we simply shift this "constant vector". We call it a *kernel* in convolution term. Let's denote $theta = F(delta_0)$ ($theta: bb(Z) -> bb(R)$), then
 $
-  [F(x)](u) = sum_(v in Z) a(v) S^v theta(u)
+  [F(x)](u) = sum_(v in bb(Z)) a(v) S^v theta(u)
 $
 
 According to the definition of the shift operation, $(S^v g)(u) = g(u - v)$. We now get:
 $
-  [F(x)](u) = sum_(v in Z) a(v) theta(u - v)
+  [F(x)](u) = sum_(v in bb(Z)) a(v) theta(u - v)
 $
 which is exactly the definition of discrete convolution.
 
