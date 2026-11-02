@@ -2,6 +2,7 @@
 import { defineConfig, envField } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { typst } from "astro-typst";
+import { mathmlAccents } from "./src/plugins/mathml-accents";
 import { loadEnv } from "vite";
 import { tylant } from "@myriaddreamin/tylant";
 import { resolve } from "node:path";
@@ -79,6 +80,7 @@ export default defineConfig({
   ],
 
   vite: {
+    plugins: [mathmlAccents()],
     build: {
       assetsInlineLimit(filePath, content) {
         const KB = 1024;

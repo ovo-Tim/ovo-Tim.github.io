@@ -525,6 +525,16 @@ math {
   color: var(--main-color);
 }
 
+/* Typst's HTML export stacks an accent exactly on the base's ink box, so a
+   tilde fuses with the ascender of `D`. Lift the accents that the build
+   rewrites (src/plugins/mathml-accents.ts) and nudge them off the italic
+   correction; both offsets are fractions of the accent's own font size. */
+math mover[accent="true"] > mo {
+  position: relative;
+  top: -0.1em;
+  left: 0.06em;
+}
+
 /* Typst's HTML export marks aligned equations with `.aligned` but emits no
    `columnalign`, so MathML Core centers every cell and the `&` alignment
    points drift apart. Restore Typst's alternating right/left alignment. */
